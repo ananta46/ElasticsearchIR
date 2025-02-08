@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            font-family: arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+        .header {
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60px;
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+            max-width: 690px;
+            width: 90%;
+            justify-content: center;
+        }
+        .search-box {
+            flex-grow: 1;
+            display: flex;
+            height: 44px;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            padding: 0 15px;
+            align-items: center;
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+            max-width: 690px;
+        }
+        .search-input {
+            flex-grow: 1;
+            height: 34px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        .results-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 60px auto 0;
+            height: calc(100vh - 80px);
+        }
+        .search-results {
+            flex: 1;
+            max-width: 652px;
+            padding: 20px;
+            border-radius: 8px;
+            background: white;
+            overflow-y: auto;
+            height: 100%;
+            scrollbar-width: thin;
+        }
+        .search-results::-webkit-scrollbar {
+            width: 8px;
+        }
+        .search-results::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .search-results::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+        .search-results-left {
+            border-right: 1px solid #dfe1e5;
+        }
+        .result {
+            margin-bottom: 30px;
+        }
+        .result-url {
+            color: #202124;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .result-title {
+            color: #1a0dab;
+            font-size: 20px;
+            margin: 5px 0;
+            text-decoration: none;
+            display: block;
+        }
+        .result-snippet {
+            color: #4d5156;
+            font-size: 14px;
+            line-height: 1.58;
+        }
+        .column-header {
+            font-size: 16px;
+            color: #202124;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dfe1e5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="search-container">
+            <div class="search-box">
+                <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20">
+                    <path fill="#9aa0a6" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                </svg>
+                <input type="text" class="search-input" value="search query">
+            </div>
+        </div>
+    </div>
+
+    <div class="results-container">
+        <div class="search-results search-results-left">
+            <div class="column-header">Search Results - Column 1</div>
+            <div class="result">
+                <div class="result-url">https://example.com › path</div>
+                <a href="#" class="result-title">Additional Result 1</a>
+                <div class="result-snippet">
+                    Adding more results to demonstrate scrolling...
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-url">https://example.com › path</div>
+                <a href="#" class="result-title">Additional Result 2</a>
+                <div class="result-snippet">
+                    Adding more results to demonstrate scrolling...
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-url">https://example.com › path</div>
+                <a href="#" class="result-title">Additional Result 3</a>
+                <div class="result-snippet">
+                    Adding more results to demonstrate scrolling...
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-url">https://example.com › path</div>
+                <a href="#" class="result-title">Additional Result 4</a>
+                <div class="result-snippet">
+                    Adding more results to demonstrate scrolling...
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-url">https://example.com › path</div>
+                <a href="#" class="result-title">Example Search Result Title</a>
+                <div class="result-snippet">
+                    This is an example search result description that would appear in Google search results. It usually contains relevant excerpts from the webpage that match the search query...
+                </div>
+            </div>
+
+            <div class="result">
+                <div class="result-url">https://anotherexample.com</div>
+                <a href="#" class="result-title">Another Search Result Example</a>
+                <div class="result-snippet">
+                    Here's another example of what a search result might look like. These snippets typically show the context around the searched keywords and help users determine if the page is relevant...
+                </div>
+            </div>
+        </div>
+
+        <div class="search-results">
+            <div class="column-header">Search Results - Column 2</div>
+            <div class="result">
+                <div class="result-url">https://example.com › path</div>
+                <a href="#" class="result-title">Right Column Result 1</a>
+                <div class="result-snippet">
+                    This is an example search result description that would appear in Google search results. It usually contains relevant excerpts from the webpage that match the search query...
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-url">https://example2.com › path</div>
+                <a href="#" class="result-title">Right Column Result 2</a>
+                <div class="result-snippet">
+                    Adding more results to demonstrate the scrolling behavior in the right column as well...
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-url">https://example3.com › path</div>
+                <a href="#" class="result-title">Right Column Result 3</a>
+                <div class="result-snippet">
+                    Here's another example result to show how the scrolling works in this column...
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-url">https://example4.com › path</div>
+                <a href="#" class="result-title">Right Column Result 4</a>
+                <div class="result-snippet">
+                    Adding more content to ensure we have enough to demonstrate the scrolling functionality...
+                </div>
+            </div>
+            <div class="result">
+                <div class="result-url">https://example5.com › path</div>
+                <a href="#" class="result-title">Right Column Result 5</a>
+                <div class="result-snippet">
+                    Both columns now have enough content to demonstrate independent scrolling behavior...
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

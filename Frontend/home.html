@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            font-family: arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+        .header {
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60px;
+            border-bottom: 1px solid #dfe1e5;
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            max-width: 690px;
+            width: 90%;
+            justify-content: center;
+        }
+        .search-box {
+            flex-grow: 1;
+            display: flex;
+            height: 44px;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            padding: 0 15px;
+            align-items: center;
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+            max-width: 690px;
+        }
+        .search-input {
+            flex-grow: 1;
+            height: 34px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        .results-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 60px auto 0;
+            height: calc(100vh - 60px);
+        }
+        .search-results {
+            flex: 1;
+            max-width: 652px;
+            padding: 20px;
+            border-radius: 8px;
+            background: white;
+            overflow-y: auto;
+            height: 100%;
+            scrollbar-width: thin;
+        }
+        .search-results::-webkit-scrollbar {
+            width: 8px;
+        }
+        .search-results::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .search-results::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .search-results::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+        .result {
+            margin-bottom: 30px;
+        }
+        .result-url {
+            color: #202124;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .result-title {
+            color: #1a0dab;
+            font-size: 20px;
+            margin: 5px 0;
+            text-decoration: none;
+            display: block;
+        }
+        .result-snippet {
+            color: #4d5156;
+            font-size: 14px;
+            line-height: 1.58;
+        }
+        .column-header {
+            font-size: 16px;
+            color: #202124;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            padding-top: 10px;
+            border-bottom: 1px solid #dfe1e5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #dfe1e5;
+            border-radius: 50%;
+            border-top-color: #1a73e8;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .stats {
+            font-size: 13px;
+            color: #70757a;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="search-container">
+            <div class="search-box">
+                <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20">
+                    <path fill="#9aa0a6" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                </svg>
+                <input type="text" class="search-input" placeholder="Enter your search query">
+            </div>
+        </div>
+    </div>
+
+    <div class="results-container">
+        <div class="search-results search-results-left">
+            <div class="column-header">
+                <span>Elasticsearch Results</span>
+                <span class="stats" id="es-stats"></span>
+            </div>
+            <div class="loading" id="loading-left"></div>
+            <div id="es-results"></div>
+        </div>
+
+        <div class="search-results">
+            <div class="column-header">
+                <span>TF-IDF Results</span>
+                <span class="stats" id="tfidf-stats"></span>
+            </div>
+            <div class="loading" id="loading-right"></div>
+            <div id="tfidf-results"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            const weight = 30; // Default weight value
+
+            function highlightQuery(text, query) {
+                if (!query) return text;
+                const words = query.split(/\s+/).filter(word => word.length > 0);
+                let highlightedText = text;
+                
+                words.forEach(word => {
+                    const regex = new RegExp(word, 'gi');
+                    highlightedText = highlightedText.replace(regex, match => 
+                        `<span style="color: #d93025; font-weight: bold;">${match}</span>`
+                    );
+                });
+                
+                return highlightedText;
+            }
+
+            function createResultHTML(result, query) {
+                const highlightedText = highlightQuery(result.relevant_text || result.text, query);
+                return `
+                    <div class="result">
+                        <div class="result-url">${result.url}</div>
+                        <a href="${result.url}" class="result-title" target="_blank">${result.title}</a>
+                        <div class="result-snippet">${highlightedText}</div>
+                    </div>
+                `;
+            }
+
+            function updateStats(containerId, totalHits, elapse) {
+                $(containerId).text(`${totalHits} results (${elapse.toFixed(3)} seconds)`);
+            }
+
+            function performSearch(query) {
+                // Clear previous results
+                $('#es-results, #tfidf-results').empty();
+                $('#loading-left, #loading-right').show();
+                $('#es-stats, #tfidf-stats').empty();
+
+                // Elasticsearch search
+                $.ajax({
+                    url: `http://127.0.0.1:5000/search_es_pr`,
+                    method: 'GET',
+                    data: {
+                        query: query,
+                        weight: weight
+                    },
+                    success: function(response) {
+                        $('#loading-left').hide();
+                        if (response.status === 'success') {
+                            const resultsHtml = response.results
+                                .map(result => createResultHTML(result, query))
+                                .join('');
+                            $('#es-results').html(resultsHtml);
+                            updateStats('#es-stats', response.total_hit, response.elapse);
+                        }
+                    },
+                    error: function() {
+                        $('#loading-left').hide();
+                        $('#es-results').html('<div class="result">Error fetching results</div>');
+                    }
+                });
+
+                // TF-IDF search
+                $.ajax({
+                    url: `http://127.0.0.1:5000/search_tfidf_pr`,
+                    method: 'GET',
+                    data: {
+                        query: query,
+                        weight: weight
+                    },
+                    success: function(response) {
+                        $('#loading-right').hide();
+                        if (response.status === 'success') {
+                            const resultsHtml = response.results
+                                .map(result => createResultHTML(result, query))
+                                .join('');
+                            $('#tfidf-results').html(resultsHtml);
+                            updateStats('#tfidf-stats', response.total_hit, response.elapse);
+                        }
+                    },
+                    error: function() {
+                        $('#loading-right').hide();
+                        $('#tfidf-results').html('<div class="result">Error fetching results</div>');
+                    }
+                });
+            }
+
+            // Handle Enter key press in search input
+            $('.search-input').keypress(function(e) {
+                if (e.which === 13) { // Enter key
+                    const query = $(this).val().trim();
+                    if (query) {
+                        performSearch(query);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

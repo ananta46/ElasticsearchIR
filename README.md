@@ -133,7 +133,3 @@ http://localhost:5000/search_tfidf_pr?query=camt&weight=30
 - Text preprocessing includes lowercase conversion, punctuation removal, and whitespace normalization
 - Search results combine relevance scores with PageRank using the specified weight
 - Response text is truncated to 200 characters for preview
-
-## Contact
-
-If you encounter any issues or have questions, please contact [Your Name/Email].
